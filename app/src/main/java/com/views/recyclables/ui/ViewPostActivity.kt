@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.views.recyclables.R
@@ -15,15 +15,13 @@ import com.views.recyclables.api.ApiClient
 import com.views.recyclables.api.ApiInterface
 import com.views.recyclables.model.Comment
 import com.views.recyclables.model.Post
-import com.views.recyclables.viewmodel.PostsViewModel
-import retrofit2.Call
-import retrofit2.Callback
+import com.views.recyclables.ui.CommentsRvAdapter
+import kotlinx.coroutines.launch
 import retrofit2.Response
 
 class ViewPostActivity : AppCompatActivity() {
     var postId = 0
     lateinit var commentsAdapter: CommentsRvAdapter
-    val postsViewModel: PostsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +37,7 @@ class ViewPostActivity : AppCompatActivity() {
             postId = intent.extras!!.getInt("POST_ID")
         }
 
-
+        // Setup RecyclerView
         val rvComments = findViewById<RecyclerView>(R.id.rvComments)
         commentsAdapter = CommentsRvAdapter(listOf())
         rvComments.adapter = commentsAdapter
@@ -51,8 +49,9 @@ class ViewPostActivity : AppCompatActivity() {
 
     private fun fetchPostDetails() {
         val apiClient = ApiClient.buildApiClient(ApiInterface::class.java)
-        apiClient.getPostById(postId).enqueue(object : Callback<Post> {
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
+        lifecycleScope.launch {
+            try {
+                val response: Response<Post> = apiClient.getPostById(postId)
                 if (response.isSuccessful) {
                     val post = response.body()
                     findViewById<TextView>(R.id.tvPostTitle).text = post?.title
@@ -61,17 +60,17 @@ class ViewPostActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this@ViewPostActivity, "Failed to load post details", Toast.LENGTH_SHORT).show()
                 }
+            } catch (e: Exception) {
+                Toast.makeText(this@ViewPostActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                Toast.makeText(this@ViewPostActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+        }
     }
+
     private fun fetchComments() {
         val apiClient = ApiClient.buildApiClient(ApiInterface::class.java)
-        apiClient.getCommentsByPostId(postId).enqueue(object : Callback<List<Comment>> {
-            override fun onResponse(call: Call<List<Comment>>, response: Response<List<Comment>>) {
+        lifecycleScope.launch {
+            try {
+                val response: Response<List<Comment>> = apiClient.getCommentsByPostId(postId)
                 if (response.isSuccessful) {
                     val comments = response.body() ?: listOf()
                     commentsAdapter.comments = comments
@@ -79,18 +78,9 @@ class ViewPostActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this@ViewPostActivity, "Failed to load comments", Toast.LENGTH_SHORT).show()
                 }
+            } catch (e: Exception) {
+                Toast.makeText(this@ViewPostActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
-                Toast.makeText(this@ViewPostActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+        }
     }
 }
-
-
-
-
-
-
-
-

@@ -1,5 +1,4 @@
-package com.jegnit.recyclerviews
-
+package com.views.recyclables.ui
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -10,7 +9,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.views.recyclables.model.Post
 import com.views.recyclables.R
-import com.views.recyclables.ui.ViewPostActivity
+import com.views.recyclables.ui.CommentsRvAdapter
 
 class PostRvAdapter(val context: Context, val posts: List<Post>):RecyclerView.Adapter<PostViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
@@ -30,7 +29,6 @@ class PostRvAdapter(val context: Context, val posts: List<Post>):RecyclerView.Ad
         holder.cvPosts.setOnClickListener {
             val intent= Intent(context, ViewPostActivity::class.java)
             intent.putExtra("POST_ID", currentPost.id)
-
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }

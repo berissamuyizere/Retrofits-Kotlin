@@ -9,7 +9,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.jegnit.recyclerviews.PostRvAdapter
 import com.views.recyclables.R
 import com.views.recyclables.api.ApiClient
 import com.views.recyclables.api.ApiInterface
